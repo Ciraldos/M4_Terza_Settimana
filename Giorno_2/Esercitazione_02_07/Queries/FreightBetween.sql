@@ -1,0 +1,1 @@
+﻿select * from Orders where Freight > 90 AND Freight < 200
