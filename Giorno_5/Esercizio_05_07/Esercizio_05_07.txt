@@ -1,0 +1,217 @@
+Creazione tabelle Anagrafica:
+
+CREATE TABLE [dbo].[Anagrafica] (
+    [IdAnagrafica] INT           NOT NULL,
+    [Cognome]      VARCHAR (50)  NOT NULL,
+    [Nome]         VARCHAR (50)  NOT NULL,
+    [Indirizzo]    VARCHAR (100) NOT NULL,
+    [Citta]        VARCHAR (50)  NOT NULL,
+    [CAP]          CHAR (5)      NOT NULL,
+    [Cod_Fisc]     CHAR (16)     NOT NULL,
+    PRIMARY KEY CLUSTERED ([IdAnagrafica] ASC)
+);
+
+
+-------------------
+
+CREATE TABLE [dbo].[Violazione] (
+    [IdViolazione] INT           NOT NULL,
+    [Descrizione]  NVARCHAR (50) NOT NULL,
+    PRIMARY KEY CLUSTERED ([IdViolazione] ASC)
+);
+
+
+-------------------
+
+
+CREATE TABLE [dbo].Verbale
+(
+	[IdVerbale] INT NOT NULL PRIMARY KEY, 
+    [DataViolazione] DATETIME2 NOT NULL, 
+    [IndirizzoViolazione] NVARCHAR(50) NOT NULL, 
+    [Nominativo_Agente] NVARCHAR(50) NOT NULL, 
+    [DataTrascrizioneVerbale] DATETIME2 NOT NULL, 
+    [Importo] DECIMAL(18, 2) NOT NULL, 
+    [DecurtamentoPunti] INT NOT NULL, 
+    [FK_Violazione] INT NOT NULL, 
+	CONSTRAINT FK_Violazione FOREIGN KEY (FK_Violazione) REFERENCES Violazione(IDViolazione),
+    [FK_Anagrafica] INT NOT NULL,
+	CONSTRAINT FK_Anagrafica FOREIGN KEY (FK_Anagrafica) REFERENCES Anagrafica(IdAnagrafica),
+)
+
+
+
+
+----------- INIZIO QUERIES -----------
+
+
+Query 1)
+
+SELECT count(*) as NumeroVerbali
+FROM Verbale
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 2)
+
+SELECT count(*) as NumeroVerbaliPersona, Anagrafica.Nome as Nome
+FROM Verbale
+INNER JOIN Anagrafica ON
+Verbale.FK_Anagrafica = Anagrafica.IdAnagrafica
+GROUP BY Anagrafica.Nome
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 3)
+
+SELECT count(*) as [Numero Verbali Per Violazione], Violazione.Descrizione as [Descrizione Violazione]
+FROM Verbale
+INNER JOIN Violazione ON
+Verbale.FK_Violazione = Violazione.IdViolazione
+GROUP BY Violazione.Descrizione
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 4)
+
+SELECT Anagrafica.Nome as [Nome Persona], SUM(Verbale.DecurtamentoPunti) as [Punti Decurtati]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+GROUP BY Anagrafica.Nome
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 5)
+
+SELECT Anagrafica.Cognome, 
+	   Anagrafica.Nome, 
+	   Verbale.DataViolazione, 
+	   Verbale.IndirizzoViolazione, 
+	   Verbale.Importo, 
+	   Verbale.DecurtamentoPunti as [Punti Decurtati]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+WHERE Anagrafica.Citta = 'Palermo'
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 6)
+
+SELECT Anagrafica.Cognome, 
+	   Anagrafica.Nome,
+	   Anagrafica.Indirizzo,
+	   Verbale.DataViolazione, 
+	   Verbale.IndirizzoViolazione, 
+	   Verbale.Importo, 
+	   Verbale.DecurtamentoPunti as [Punti Decurtati]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+WHERE Verbale.DataViolazione BETWEEN '2009-02-01' AND '2009-07-01'
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 7)
+
+SELECT CONCAT(Anagrafica.Nome, ' ', Anagrafica.Cognome) AS [Nome Completo], SUM(Verbale.Importo) as [Totale Importo]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+GROUP BY CONCAT(Anagrafica.Nome, ' ', Anagrafica.Cognome)
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 8)
+
+SELECT *
+FROM Anagrafica
+WHERE Anagrafica.Citta = 'Palermo'
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 9)
+
+SELECT DataViolazione as [Data Violazione], Importo, DecurtamentoPunti as [Decurtamento Punti]
+FROM Verbale
+WHERE CONVERT(DATE,Verbale.DataViolazione) = '2024-06-02'
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 10)
+
+SELECT count (*) as [Violazioni Per Agente], Verbale.Nominativo_Agente
+FROM Verbale
+GROUP BY Verbale.Nominativo_Agente
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 11)
+
+SELECT Anagrafica.Cognome, 
+	   Anagrafica.Nome,
+	   Anagrafica.Indirizzo,
+	   Verbale.DataViolazione, 
+	   Verbale.Importo, 
+	   Verbale.DecurtamentoPunti as [Punti Decurtati]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+WHERE Verbale.DecurtamentoPunti > 5
+
+
+<------------------------------------------------------------------------------------>
+
+
+Query 12)
+
+SELECT Anagrafica.Cognome, 
+	   Anagrafica.Nome,
+	   Anagrafica.Indirizzo,
+	   Verbale.DataViolazione as [Data Violazione], 
+	   Verbale.Importo, 
+	   Verbale.DecurtamentoPunti as [Punti Decurtati]
+FROM Anagrafica
+INNER JOIN Verbale ON
+Anagrafica.IdAnagrafica = Verbale.FK_Anagrafica
+WHERE Verbale.Importo > 400
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
